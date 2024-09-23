@@ -115,6 +115,7 @@ func (t *TreeMap[Key, Value]) Del(key Key) {
 	}
 	t.count--
 	removeNode(t.endNode.left, z)
+	delete(t.nodeRef, key)
 }
 
 // Clear clears the map.

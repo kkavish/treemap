@@ -26,6 +26,11 @@ func TestGet(t *testing.T) {
 	testGet(t, NewWithKeyCompare[int, string](less))
 }
 
+func TestDuplicate(t *testing.T) {
+	testDuplicate(t, New[int, string]())
+	testDuplicate(t, NewWithKeyCompare[int, string](less))
+}
+
 func TestContains(t *testing.T) {
 	testContains(t, New[int, string]())
 	testContains(t, NewWithKeyCompare[int, string](less))
@@ -463,5 +468,28 @@ func testRangeSingle(t *testing.T, tr *TreeMap[int, string]) {
 	}
 	if !visited {
 		t.Error("single element 'b' should be found")
+	}
+}
+
+func testDuplicate(t *testing.T, tr *TreeMap[int, string]) {
+	tr.Set(65, "A")
+	tr.Set(65, "a")
+
+	if tr.Len() != 1 {
+		t.Error("count should be 1")
+	}
+
+	if v, _ := tr.Get(65); v != "a" {
+		t.Error("value should be 'a'")
+	}
+
+	tr.Del(65)
+
+	if tr.Len() != 0 {
+		t.Error("count should be 0")
+	}
+
+	if v, ok := tr.Get(65); v != "" || ok {
+		t.Error("value should be ''")
 	}
 }
