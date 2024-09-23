@@ -49,8 +49,8 @@ go get github.com/igrmk/treemap/v2
 |:------------------------------:|:---------:|
 |             `Set`              | O(log*N*) |
 |             `Del`              | O(log*N*) |
-|             `Get`              | O(log*N*) |
-|           `Contains`           | O(log*N*) |
+|             `Get`              |   O(1)    |
+|           `Contains`           |   O(1)    |
 |             `Len`              |   O(1)    |
 |            `Clear`             |   O(1)    |
 |            `Range`             | O(log*N*) |
