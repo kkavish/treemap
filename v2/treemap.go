@@ -100,7 +100,7 @@ func (t *TreeMap[Key, Value]) Set(key Key, value Value) {
 }
 
 // Del deletes the value.
-// Complexity: O(logN).
+// Complexity: O(log N).
 func (t *TreeMap[Key, Value]) Del(key Key) {
 	z := t.findNode(key)
 	if z == nil {
