@@ -4,26 +4,26 @@
 //
 // Example:
 //
-//     package main
+//	package main
 //
-//     import (
-//         "fmt"
+//	import (
+//	    "fmt"
 //
-//         "github.com/igrmk/treemap/v2"
-//     )
+//	    "github.com/igrmk/treemap/v2"
+//	)
 //
-//     func main() {
-//         tree := treemap.New[int, string]()
-//         tree.Set(1, "World")
-//         tree.Set(0, "Hello")
-//         for it := tree.Iterator(); it.Valid(); it.Next() {
-//             fmt.Println(it.Key(), it.Value())
-//         }
-//     }
+//	func main() {
+//	    tree := treemap.New[int, string]()
+//	    tree.Set(1, "World")
+//	    tree.Set(0, "Hello")
+//	    for it := tree.Iterator(); it.Valid(); it.Next() {
+//	        fmt.Println(it.Key(), it.Value())
+//	    }
+//	}
 //
-//     // Output:
-//     // 0 Hello
-//     // 1 World
+//	// Output:
+//	// 0 Hello
+//	// 1 World
 package treemap
 
 import "golang.org/x/exp/constraints"
@@ -32,6 +32,7 @@ import "golang.org/x/exp/constraints"
 type TreeMap[Key, Value any] struct {
 	endNode    *node[Key, Value]
 	beginNode  *node[Key, Value]
+	nodeRef    map[any]*node[Key, Value]
 	count      int
 	keyCompare func(a Key, b Key) bool
 }
@@ -48,7 +49,7 @@ type node[Key, Value any] struct {
 // New creates and returns new TreeMap.
 func New[Key constraints.Ordered, Value any]() *TreeMap[Key, Value] {
 	endNode := &node[Key, Value]{isBlack: true}
-	return &TreeMap[Key, Value]{beginNode: endNode, endNode: endNode, keyCompare: defaultKeyCompare[Key]}
+	return &TreeMap[Key, Value]{beginNode: endNode, endNode: endNode, nodeRef: make(map[any]*node[Key, Value]), keyCompare: defaultKeyCompare[Key]}
 }
 
 // NewWithKeyCompare creates and returns new TreeMap with the specified key compare function.
@@ -57,7 +58,7 @@ func NewWithKeyCompare[Key, Value any](
 	keyCompare func(a, b Key) bool,
 ) *TreeMap[Key, Value] {
 	endNode := &node[Key, Value]{isBlack: true}
-	return &TreeMap[Key, Value]{beginNode: endNode, endNode: endNode, keyCompare: keyCompare}
+	return &TreeMap[Key, Value]{beginNode: endNode, endNode: endNode, nodeRef: make(map[any]*node[Key, Value]), keyCompare: keyCompare}
 }
 
 // Len returns total count of elements in a map.
@@ -94,6 +95,7 @@ func (t *TreeMap[Key, Value]) Set(key Key, value Value) {
 		t.beginNode = t.beginNode.left
 	}
 	t.insertFixup(x)
+	t.nodeRef[key] = x
 	t.count++
 }
 
@@ -121,6 +123,7 @@ func (t *TreeMap[Key, Value]) Clear() {
 	t.count = 0
 	t.beginNode = t.endNode
 	t.endNode.left = nil
+	t.nodeRef = make(map[any]*node[Key, Value])
 }
 
 // Get retrieves a value from a map for specified key and reports if it exists.
@@ -223,18 +226,7 @@ func defaultKeyCompare[Key constraints.Ordered](
 }
 
 func (t *TreeMap[Key, Value]) findNode(id Key) *node[Key, Value] {
-	current := t.endNode.left
-	for current != nil {
-		switch {
-		case t.keyCompare(id, current.key):
-			current = current.left
-		case t.keyCompare(current.key, id):
-			current = current.right
-		default:
-			return current
-		}
-	}
-	return nil
+	return t.nodeRef[id]
 }
 
 func mostLeft[Key, Value any](
@@ -363,8 +355,9 @@ func (t *TreeMap[Key, Value]) insertFixup(x *node[Key, Value]) {
 	}
 }
 
+// noinspection GoNilness
+//
 //nolint:gocyclo
-//noinspection GoNilness
 func removeNode[Key, Value any](
 	root, z *node[Key, Value],
 ) {
