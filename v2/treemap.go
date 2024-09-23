@@ -100,7 +100,7 @@ func (t *TreeMap[Key, Value]) Set(key Key, value Value) {
 }
 
 // Del deletes the value.
-// Complexity: O(log N).
+// Complexity: O(1).
 func (t *TreeMap[Key, Value]) Del(key Key) {
 	z := t.findNode(key)
 	if z == nil {
@@ -128,7 +128,7 @@ func (t *TreeMap[Key, Value]) Clear() {
 }
 
 // Get retrieves a value from a map for specified key and reports if it exists.
-// Complexity: O(log N).
+// Complexity: O(1).
 func (t *TreeMap[Key, Value]) Get(id Key) (Value, bool) {
 	node := t.findNode(id)
 	if node == nil {
@@ -138,7 +138,7 @@ func (t *TreeMap[Key, Value]) Get(id Key) (Value, bool) {
 }
 
 // Contains checks if key exists in a map.
-// Complexity: O(log N)
+// Complexity: O(1)
 func (t *TreeMap[Key, Value]) Contains(id Key) bool { return t.findNode(id) != nil }
 
 // Range returns a pair of iterators that you can use to go through all the keys in the range [from, to].
